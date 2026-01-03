@@ -1,5 +1,6 @@
 package com.codegym.controller;
 
+import com.codegym.exception.AuthException;
 import com.codegym.model.JwtResponse;
 import com.codegym.model.Role;
 import com.codegym.model.User;
@@ -89,7 +90,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody User user){
+    try
+
+    {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtService.generateTokenLogin(authentication);
@@ -97,6 +101,14 @@ public class UserController {
         User currentUser = userService.findByUsername(user.getUsername());
         return ResponseEntity.ok(new JwtResponse(jwt, currentUser.getId(), userDetails.getUsername(), userDetails.getAuthorities()));
     }
+    catch(
+    Exception e)
+
+    {
+        throw new AuthException("User is not authenticated or invalid credentials.");
+    }
+}
+
 
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
